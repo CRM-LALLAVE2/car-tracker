@@ -35,16 +35,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // REPLACE THESE WITH YOUR FIREBASE KEYS FROM STEP 3
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBt5toZ4poHRuop53opN0ikXvULhzCkQDY",
+  authDomain: "cartracker-16620.firebaseapp.com",
+  databaseURL: "https://cartracker-16620-default-rtdb.firebaseio.com",
+  projectId: "cartracker-16620",
+  storageBucket: "cartracker-16620.firebasestorage.app",
+  messagingSenderId: "974892728982",
+  appId: "1:974892728982:web:3f2fb2389d447c5c5ef8b7"
+};
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
