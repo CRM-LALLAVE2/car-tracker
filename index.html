@@ -12,13 +12,15 @@
         #info-box {
             position: absolute;
             top: 10px;
-            left: 10px;
+            left: 50px;
             z-index: 1000;
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             padding: 10px 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
+        #info-box h3 { margin: 0 0 5px 0; font-size: 16px; }
+        #info-box p { margin: 0; font-size: 13px; color: #333; }
     </style>
 </head>
 <body>
@@ -35,28 +37,48 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBt5toZ4poHRuop53opN0ikXvULhzCkQDY",
-  authDomain: "cartracker-16620.firebaseapp.com",
-  databaseURL: "https://cartracker-16620-default-rtdb.firebaseio.com",
-  projectId: "cartracker-16620",
-  storageBucket: "cartracker-16620.firebasestorage.app",
-  messagingSenderId: "974892728982",
-  appId: "1:974892728982:web:3f2fb2389d447c5c5ef8b7"
-};
+        const firebaseConfig = {
+          apiKey: "AIzaSyBt5toZ4poHRuop53opN0ikXvULhzCkQDY",
+          authDomain: "cartracker-16620.firebaseapp.com",
+          databaseURL: "https://cartracker-16620-default-rtdb.firebaseio.com",
+          projectId: "cartracker-16620",
+          storageBucket: "cartracker-16620.firebasestorage.app",
+          messagingSenderId: "974892728982",
+          appId: "1:974892728982:web:3f2fb2389d447c5c5ef8b7"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Initialize Map
-        var map = L.map('map').setView([32.6245, -115.4523], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // 1. Capa de Satélite (Ideal para zonas sin carretera o desierto)
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
-        }).addTo(map);
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        // 2. Capa de Calles (OpenStreetMap)
+        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        });
+
+        // Inicializar el mapa con la Vista Satelital por defecto
+        var map = L.map('map', {
+            center: [32.6245, -115.4523],
+            zoom: 15,
+            layers: [satelliteLayer]
+        });
+
+        // Selector en la esquina superior derecha para alternar entre Satélite y Calles
+        const baseMaps = {
+            "Vista Satelital": satelliteLayer,
+            "Mapa de Calles": streetLayer
+        };
+        L.control.layers(baseMaps).addTo(map);
 
         var marker = L.marker([0, 0]).addTo(map);
 
-        // Listen for live updates from Firebase
+        // Escuchar actualizaciones en tiempo real desde Firebase
         const carRef = ref(db, 'vehicles/my_car/latest');
         onValue(carRef, (snapshot) => {
             const data = snapshot.val();
@@ -64,7 +86,7 @@ const firebaseConfig = {
                 var lat = data.latitude;
                 var lng = data.longitude;
                 marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 16);
+                map.setView([lat, lng], 17); // Zoom más cercano para ver detalles del terreno
                 document.getElementById('status').innerText = `Last updated: ${new Date(data.timestamp).toLocaleTimeString()}`;
             } else {
                 document.getElementById('status').innerText = "No location data yet.";
